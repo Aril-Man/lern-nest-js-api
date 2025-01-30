@@ -4,6 +4,10 @@ export class RegisterUserRequest {
   name: string;
 }
 
+export class RequestUpdateUser {
+  name: string;
+}
+
 export class UserResponse {
   username: string;
   name: string;

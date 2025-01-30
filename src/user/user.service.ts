@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import {
   LoginUserRequest,
   RegisterUserRequest,
@@ -11,7 +13,9 @@ import { Logger } from 'winston';
 import { UserValidation } from './user.validation';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../common/prisma.service';
-import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
+import { User } from '@prisma/client';
+import { RequestUpdateUser } from '../model/user.model';
 
 @Injectable()
 export class UserService {
@@ -19,7 +23,6 @@ export class UserService {
     private validation: ValidationService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
-    private jwtService: JwtService,
   ) {}
 
   async register(request: RegisterUserRequest): Promise<UserResponse> {
@@ -75,10 +78,8 @@ export class UserService {
     if (!isPasswordValid)
       throw new HttpException('Username or password is invalid', 400);
 
-    const token = this.jwtService.sign(loginUserRequest, {
-      algorithm: 'HS256',
+    const token = jwt.sign(loginUserRequest, process.env.JWT_SECRET as string, {
       expiresIn: '1d',
-      secret: process.env.JWT_SECRET,
     });
 
     user = await this.prismaService.user.update({
@@ -94,6 +95,51 @@ export class UserService {
       username: user.username,
       name: user.name,
       token: user.token || '',
+    };
+  }
+
+  async me(req: any): Promise<UserResponse> {
+    const user: User = req.user;
+
+    return {
+      username: user.username,
+      name: user.name,
+    };
+  }
+
+  async updateUser(
+    req: any,
+    request: RequestUpdateUser,
+  ): Promise<UserResponse> {
+    this.logger.info(`Update User Payload : ${JSON.stringify(request)}`);
+
+    this.logger.info(`Update User Payload : ${JSON.stringify(req.user)}`);
+
+    const user: User = req.user;
+
+    this.validation.validate(UserValidation.UPDATE, request);
+
+    const existUser = await this.prismaService.user.findFirst({
+      where: {
+        username: user.username,
+      },
+    });
+
+    if (!existUser)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    await this.prismaService.user.update({
+      where: {
+        username: user.username,
+      },
+      data: {
+        name: request.name,
+      },
+    });
+
+    return {
+      username: user.username,
+      name: request.name,
     };
   }
 }
