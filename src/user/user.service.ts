@@ -40,7 +40,7 @@ export class UserService {
     });
 
     if (existUser != 0) {
-      throw new HttpException('User already exist', 400);
+      throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
     }
 
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
@@ -68,7 +68,11 @@ export class UserService {
       },
     });
 
-    if (!user) throw new HttpException('Username or password is invalid', 400);
+    if (!user)
+      throw new HttpException(
+        'Username or password is invalid',
+        HttpStatus.BAD_REQUEST,
+      );
 
     const isPasswordValid = await bcrypt.compare(
       loginUserRequest.password,
@@ -76,7 +80,10 @@ export class UserService {
     );
 
     if (!isPasswordValid)
-      throw new HttpException('Username or password is invalid', 400);
+      throw new HttpException(
+        'Username or password is invalid',
+        HttpStatus.BAD_REQUEST,
+      );
 
     const token = jwt.sign(loginUserRequest, process.env.JWT_SECRET as string, {
       expiresIn: '1d',

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpStatus,
   Post,
   Put,
   Request,
@@ -23,7 +24,7 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Post()
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   /**
    * Registers a new user and returns the user details
    * @param request Request body with the user details
@@ -40,7 +41,7 @@ export class UserController {
   }
 
   @Post('/login')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   /**
    * Logs in the user and returns the user details
    * @param request Request body with the username and password
@@ -58,7 +59,7 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Get('/me')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   /**
    * Get current user
    * @param user Current user from the request
@@ -72,7 +73,7 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Put('/update')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   /**
    * Updates the user based on the user id
    * @param user User details from the request
