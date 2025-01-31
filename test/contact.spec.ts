@@ -59,4 +59,30 @@ describe('UserController', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('GET /api/contact', () => {
+    it('should be token is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/contact')
+        .set('authorization', '');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.error).toBeDefined();
+    });
+
+    it('should be able to get contact', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/contact')
+        .set(
+          'authorization',
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJwYXNzd29yZCIsImlhdCI6MTczODI4Mzg5MywiZXhwIjoxNzM4MzcwMjkzfQ.zGnuSoRPMds3x3XSjhdqvY2MoLKgzWSJ757O0O4bVV4',
+        );
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+    });
+  });
 });
