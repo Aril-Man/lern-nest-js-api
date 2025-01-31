@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -33,6 +34,17 @@ export class ContactController {
     @Body() request: RequestAddContact,
   ): Promise<WebResponse<ResponseContact>> {
     const result = await this.contactService.addContact(req, request);
+
+    return {
+      data: result,
+    };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getContact(@Request() req: any): Promise<WebResponse<ResponseContact>> {
+    const result = await this.contactService.getContact(req);
 
     return {
       data: result,

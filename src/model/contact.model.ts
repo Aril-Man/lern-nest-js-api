@@ -8,7 +8,7 @@ export class RequestAddContact {
 export class ResponseContact {
   username: string;
   name: string;
-  fistName: string;
+  firstName: string;
   lastName: string;
   email?: string;
   phone?: string;
