@@ -2,24 +2,28 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { faker } from '@faker-js/faker';
+import { ContactTestModule } from './constact.module';
+import { UserService } from '../user/user.service';
 
 describe('UserController', () => {
   let app: INestApplication<App>;
   let logger: Logger;
+  let userTestService: UserService;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, ContactTestModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
 
     logger = app.get(WINSTON_MODULE_PROVIDER);
+    userTestService = app.get(UserService);
   });
 
   describe('POST /api/contact', () => {
@@ -41,12 +45,11 @@ describe('UserController', () => {
     });
 
     it('should be able to add contact', async () => {
+      const token = await userTestService.getUSersToken();
+
       const response = await request(app.getHttpServer())
         .post('/api/contact')
-        .set(
-          'authorization',
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJwYXNzd29yZCIsImlhdCI6MTczODI4Mzg5MywiZXhwIjoxNzM4MzcwMjkzfQ.zGnuSoRPMds3x3XSjhdqvY2MoLKgzWSJ757O0O4bVV4',
-        )
+        .set('authorization', `Bearer ${token}`)
         .send({
           firstName: faker.person.firstName(),
           lastName: faker.person.lastName(),
@@ -73,12 +76,11 @@ describe('UserController', () => {
     });
 
     it('should be able to get contact', async () => {
+      const token = await userTestService.getUSersToken();
+
       const response = await request(app.getHttpServer())
         .get('/api/contact')
-        .set(
-          'authorization',
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJwYXNzd29yZCIsImlhdCI6MTczODI4Mzg5MywiZXhwIjoxNzM4MzcwMjkzfQ.zGnuSoRPMds3x3XSjhdqvY2MoLKgzWSJ757O0O4bVV4',
-        );
+        .set('authorization', `Bearer ${token}`);
 
       logger.info(response.body);
 

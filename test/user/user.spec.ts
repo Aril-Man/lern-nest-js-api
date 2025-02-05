@@ -2,24 +2,28 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { faker } from '@faker-js/faker';
+import { UserTestModule } from './user.module';
+import { UserService } from './user.service';
 
 describe('UserController', () => {
   let app: INestApplication<App>;
   let logger: Logger;
+  let userTestService: UserService;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, UserTestModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
 
     logger = app.get(WINSTON_MODULE_PROVIDER);
+    userTestService = app.get(UserService);
   });
 
   describe('POST /api/users', () => {
@@ -95,12 +99,11 @@ describe('UserController', () => {
     });
 
     it('should be able to get user', async () => {
+      const token = await userTestService.getUSersToken();
+
       const response = await request(app.getHttpServer())
         .get('/api/users/me')
-        .set(
-          'authorization',
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJwYXNzd29yZCIsImlhdCI6MTczODIwNTQ2NCwiZXhwIjoxNzM4MjkxODY0fQ.LQbRuwpaGrYuivVBI3hgD-yoCk-NVXK2QWyR2sWiFC0',
-        );
+        .set('authorization', `Bearer ${token}`);
 
       logger.info(response.body);
 
@@ -121,12 +124,11 @@ describe('UserController', () => {
     });
 
     it('should be able to update', async () => {
+      const token = await userTestService.getUSersToken();
+
       const response = await request(app.getHttpServer())
         .put('/api/users/update')
-        .set(
-          'authorization',
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkxpbmRzZXkuV29sZmY2NSIsInBhc3N3b3JkIjoicGFzc3dvcmQiLCJpYXQiOjE3MzgyMDkyMTQsImV4cCI6MTczODI5NTYxNH0.Rwr0iEjvhRPK9g2pVbLU6cTJmhRfVFqvCPjGR6lPMi4',
-        )
+        .set('authorization', `Bearer ${token}`)
         .send({
           name: faker.person.fullName(),
         });
