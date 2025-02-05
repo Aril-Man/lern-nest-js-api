@@ -57,6 +57,24 @@ export class UserController {
     };
   }
 
+  @Post('/logout')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  /*************  ✨ Codeium Command ⭐  *************/
+  /**
+   * Logs out the current user and returns the user details
+   * @param req Request with the current user
+   * @returns WebResponse with the user data
+   */
+  /******  d86ef68e-7ef7-4e4b-9b83-9dff3d026dd8  *******/
+  async logout(@Request() req: any): Promise<WebResponse<UserResponse>> {
+    const result = await this.userService.logout(req);
+
+    return {
+      data: result,
+    };
+  }
+
   @UseGuards(AuthGuard)
   @Get('/me')
   @HttpCode(HttpStatus.OK)

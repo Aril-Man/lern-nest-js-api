@@ -138,4 +138,30 @@ describe('UserController', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('POST /api/users/logout', () => {
+    it('should be logout is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/logout')
+        .set('authorization', '');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.error).toBeDefined();
+    });
+
+    it('should be able to logout', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/logout')
+        .set(
+          'authorization',
+          `Bearer ${await userTestService.getUSersToken()}`,
+        );
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+    });
+  });
 });

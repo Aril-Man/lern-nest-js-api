@@ -54,6 +54,28 @@ export class UserService {
     };
   }
 
+  async logout(req: any): Promise<UserResponse> {
+    const user: User = req.user;
+
+    try {
+      await this.prismaService.user.update({
+        where: {
+          username: user.username,
+        },
+        data: {
+          token: null,
+        },
+      });
+
+      return {
+        username: user.username,
+        name: user.name,
+      };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async login(request: LoginUserRequest): Promise<UserResponse> {
     this.logger.info(`Login User Payload : ${JSON.stringify(request)}`);
 
