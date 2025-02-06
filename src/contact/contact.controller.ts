@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -45,6 +46,17 @@ export class ContactController {
   @HttpCode(HttpStatus.OK)
   async getContact(@Request() req: any): Promise<WebResponse<ResponseContact>> {
     const result = await this.contactService.getContact(req);
+
+    return {
+      data: result,
+    };
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete()
+  @HttpCode(HttpStatus.OK)
+  async deleteContact(@Request() req: any): Promise<WebResponse<string>> {
+    const result = await this.contactService.deleteContact(req);
 
     return {
       data: result,

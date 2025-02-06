@@ -7,6 +7,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { ValidationService } from '../common/validation.service';
 import { RequestAddContact, ResponseContact } from '../model/contact.model';
 import { ContactValidation } from './contact.validation';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class ContactService {
@@ -78,5 +79,27 @@ export class ContactService {
       email: contact.email ?? '',
       phone: contact.phone ?? '',
     };
+  }
+
+  async deleteContact(req: any): Promise<string> {
+    const user: User = req.user;
+
+    try {
+      const contact = await this.prismaService.contact.findFirst({
+        where: {
+          username: user.username,
+        },
+      });
+
+      await this.prismaService.contact.delete({
+        where: {
+          id: contact?.id,
+        },
+      });
+
+      return 'Contact deleted successfully';
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 }

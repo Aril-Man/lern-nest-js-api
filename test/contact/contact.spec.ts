@@ -87,4 +87,29 @@ describe('UserController', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('DELETE /api/contact', () => {
+    it('should be token is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .delete('/api/contact')
+        .set('authorization', '');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.error).toBeDefined();
+    });
+
+    it('should be able to delete contact', async () => {
+      const token = await userTestService.getUSersToken();
+
+      const response = await request(app.getHttpServer())
+        .delete('/api/contact')
+        .set('authorization', `Bearer ${token}`);
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+    });
+  });
 });
