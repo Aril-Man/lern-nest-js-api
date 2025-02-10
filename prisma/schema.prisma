@@ -42,7 +42,7 @@ model Address {
   id Int @id @default(autoincrement())
   street String? @db.Text
   city String? @db.VarChar(100)
-  privince String? @db.VarChar(100)
+  province String? @db.VarChar(100)
   country String @db.VarChar(100)
   postal_code String @db.VarChar(10)
   contact_id Int
