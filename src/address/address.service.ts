@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { AddressResponse, AddAddressRequest } from '../model/address.model';
-import { User } from '@prisma/client';
+import { Address, User } from '@prisma/client';
 import { PrismaService } from '../common/prisma.service';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
@@ -24,7 +24,7 @@ export class AddressService {
 
     const contact = await this.prismaService.contact.findFirst({
       where: {
-        user: user,
+        username: user.username,
       },
     });
 
@@ -50,12 +50,43 @@ export class AddressService {
       return {
         user: {
           username: user.username,
-          password: user.password,
+          name: user.name,
         },
+        contact: contact,
         address: address,
       };
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async getAddress(req: any): Promise<AddressResponse> {
+    const user: User = req.user;
+
+    const contact = await this.prismaService.contact.findFirst({
+      where: {
+        username: user.username,
+      },
+    });
+
+    if (!contact)
+      throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+
+    const address = await this.prismaService.address.findFirst({
+      where: {
+        contact_id: contact.id,
+      },
+    });
+
+    this.logger.info('Data Address : ', JSON.stringify(contact));
+
+    return {
+      user: {
+        username: user.username,
+        name: user.name,
+      },
+      contact: contact,
+      address: address as Address,
+    };
   }
 }

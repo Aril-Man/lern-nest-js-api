@@ -1,4 +1,4 @@
-import { Address } from '@prisma/client';
+import { Address, Contact } from '@prisma/client';
 
 export class AddAddressRequest {
   street: string;
@@ -11,7 +11,8 @@ export class AddAddressRequest {
 export class AddressResponse {
   user: {
     username: string;
-    password: string;
+    name: string;
   };
+  contact: Contact;
   address: Address;
 }

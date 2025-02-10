@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -31,6 +32,23 @@ export class AddressController {
     @Body() request: AddAddressRequest,
   ): Promise<WebResponse<AddressResponse>> {
     const result = await this.addressService.addAddress(req, request);
+
+    return {
+      data: result,
+    };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  /**
+   * Get the address of the user.
+   *
+   * @param req The current request, holding the user information.
+   * @returns A WebResponse containing the user's address.
+   */
+  async getAddress(@Request() req: any): Promise<WebResponse<AddressResponse>> {
+    const result = await this.addressService.getAddress(req);
 
     return {
       data: result,

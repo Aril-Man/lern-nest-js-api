@@ -9,7 +9,7 @@ import { faker } from '@faker-js/faker';
 import { ContactTestModule } from './constact.module';
 import { UserService } from '../user/user.service';
 
-describe('UserController', () => {
+describe('ContactController', () => {
   let app: INestApplication<App>;
   let logger: Logger;
   let userTestService: UserService;
