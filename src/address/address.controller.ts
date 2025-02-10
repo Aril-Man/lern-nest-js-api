@@ -19,7 +19,7 @@ export class AddressController {
 
   @UseGuards(AuthGuard)
   @Post()
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   /**
    * Add a new address
    *
