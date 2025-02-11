@@ -83,4 +83,36 @@ describe('AddressController', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('PUT /api/address/update/:id', () => {
+    it('should be token is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .put('/api/address/update/6')
+        .set('authorization', '');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.error).toBeDefined();
+    });
+
+    it('should be able to update address', async () => {
+      const token = await userTestService.getUSersToken();
+
+      const response = await request(app.getHttpServer())
+        .put('/api/address/update/6')
+        .set('authorization', `Bearer ${token}`)
+        .send({
+          street: faker.address.street(),
+          city: faker.address.city(),
+          country: faker.address.country(),
+          postal_code: faker.address.zipCode(),
+          province: faker.address.state(),
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+    });
+  });
 });

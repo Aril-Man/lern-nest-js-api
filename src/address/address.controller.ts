@@ -67,7 +67,7 @@ export class AddressController {
   async updateAddress(
     @Request() req: any,
     @Body() request: UpdateAddressRequest,
-    @Param('id') id: number,
+    @Param('id') id: string,
   ): Promise<WebResponse<AddressResponse>> {
     const result = await this.addressService.updateAddress(req, request, id);
 

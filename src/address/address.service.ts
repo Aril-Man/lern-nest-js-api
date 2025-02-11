@@ -97,7 +97,7 @@ export class AddressService {
   async updateAddress(
     req: any,
     request: UpdateAddressRequest,
-    id: number,
+    id: string,
   ): Promise<AddressResponse> {
     const user: User = req.user;
 
@@ -113,8 +113,8 @@ export class AddressService {
     try {
       const address = await this.prismaService.address.update({
         where: {
+          id: parseInt(id),
           contact_id: contact.id,
-          id: id,
         },
         data: {
           street: request.street,
@@ -134,6 +134,7 @@ export class AddressService {
         address: address,
       };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
