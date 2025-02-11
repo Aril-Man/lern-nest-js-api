@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { AddressResponse, AddAddressRequest } from '../model/address.model';
+import {
+  AddressResponse,
+  AddAddressRequest,
+  UpdateAddressRequest,
+} from '../model/address.model';
 import { Address, User } from '@prisma/client';
 import { PrismaService } from '../common/prisma.service';
 import { Logger } from 'winston';
@@ -88,5 +92,49 @@ export class AddressService {
       contact: contact,
       address: address as Address,
     };
+  }
+
+  async updateAddress(
+    req: any,
+    request: UpdateAddressRequest,
+    id: number,
+  ): Promise<AddressResponse> {
+    const user: User = req.user;
+
+    const contact = await this.prismaService.contact.findFirst({
+      where: {
+        username: user.username,
+      },
+    });
+
+    if (!contact)
+      throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+
+    try {
+      const address = await this.prismaService.address.update({
+        where: {
+          contact_id: contact.id,
+          id: id,
+        },
+        data: {
+          street: request.street,
+          city: request.city,
+          country: request.country,
+          postal_code: request.postal_code,
+          province: request.province,
+        },
+      });
+
+      return {
+        user: {
+          username: user.username,
+          name: user.name,
+        },
+        contact: contact,
+        address: address,
+      };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

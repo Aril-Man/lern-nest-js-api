@@ -16,3 +16,11 @@ export class AddressResponse {
   contact: Contact;
   address: Address;
 }
+
+export class UpdateAddressRequest {
+  street: string;
+  city: string;
+  country: string;
+  postal_code: string;
+  province: string;
+}

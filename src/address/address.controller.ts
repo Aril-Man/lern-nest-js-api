@@ -4,12 +4,18 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { AddressService } from './address.service';
-import { AddAddressRequest, AddressResponse } from '../model/address.model';
+import {
+  AddAddressRequest,
+  AddressResponse,
+  UpdateAddressRequest,
+} from '../model/address.model';
 import { WebResponse } from '../model/web.model';
 import { AuthGuard } from '../security/auth.guard';
 
@@ -49,6 +55,21 @@ export class AddressController {
    */
   async getAddress(@Request() req: any): Promise<WebResponse<AddressResponse>> {
     const result = await this.addressService.getAddress(req);
+
+    return {
+      data: result,
+    };
+  }
+
+  @UseGuards(AuthGuard)
+  @Put('/update/:id')
+  @HttpCode(HttpStatus.OK)
+  async updateAddress(
+    @Request() req: any,
+    @Body() request: UpdateAddressRequest,
+    @Param('id') id: number,
+  ): Promise<WebResponse<AddressResponse>> {
+    const result = await this.addressService.updateAddress(req, request, id);
 
     return {
       data: result,
